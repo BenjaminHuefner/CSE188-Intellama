@@ -60,14 +60,17 @@ def build_code_repair_prompt(
     error_output: str,
 ) -> str:
     error_output = error_output[-1000:]
+    tool_error = ""
     if(current_feedback):
         current_feedback = f"\n\n Another debugger has provided feedback on the broken code:\n{current_feedback}\n\n"
+    if(tool_name and error_output):
+        tool_error = f"--- TOOL ERROR ({tool_name}) ---\n{error_output}\n\n"
     prompt = (
         f"{CODE_REPAIR_SYSTEM}\n\n"
         f"--- ORIGINAL PROBLEM ---\n{problem_prompt}\n\n"
         f"--- CURRENT CODE ---\n{current_code}\n\n"
-        f"--- TOOL ERROR ({tool_name}) ---\n{error_output}\n\n"
-        f"{current_feedback}"
+        f"{tool_error if tool_name and error_output else ''}"
+        f"{current_feedback if current_feedback else ''}"
         "Now fix the code:"
     )
     return prompt
