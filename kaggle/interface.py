@@ -21,7 +21,7 @@ def worker_process(gpu_id: int, problems: List[Dict], experiment_name: str, resu
         worker_results = []
         for problem in problems:
             task_id = problem['task_id']
-            print(f"Worker {gpu_id}: Processing {task_id}",flush=True)
+            # print(f"Worker {gpu_id}: Processing {task_id}",flush=True)
             
             try:
                 results = run_experiment_problem(problem, experiment_name)

@@ -90,10 +90,10 @@ def _gate_pass() -> Dict:
 
 def run_gates(code: str, use_static_gates: bool, problem: Optional[Dict] = None) -> Dict:
     
-    print(
-        f"Running gates (static={'on' if use_static_gates else 'off'}, "
-        f"tests={'on' if problem else 'off'})...", flush=True
-    )
+    # print(
+    #      f"Running gates (static={'on' if use_static_gates else 'off'}, "
+    #      f"tests={'on' if problem else 'off'})...", flush=True
+    # )
 
     with tempfile.NamedTemporaryFile(
         mode="w", suffix=".py", delete=False, encoding="utf-8"
