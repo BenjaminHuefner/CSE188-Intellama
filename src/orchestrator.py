@@ -144,7 +144,7 @@ def run_experiment_problem(problem: Dict, experiment_name: str) -> Dict:
             )
 
         final_result["turns"].append(turn_result)
-        final_result["num_turns"] = turn_result["turn"]
+        final_result["num_turns"] = turn_result["turn"]+1
 
         if turn_result.get("status") == "completed":
             final_result["status"] = "completed"

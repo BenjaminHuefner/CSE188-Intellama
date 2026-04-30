@@ -184,32 +184,44 @@ def run_gates(code: str, use_static_gates: bool, problem: Optional[Dict] = None)
         shutil.rmtree(tmpdir, ignore_errors=True)
 
 
-
+import re
 def sanitize_code(code: str) -> str:
-    if not code:
-        return ""
+    pattern = r"```(?:python)?\s*(.*?)```"
 
-    code = code.strip()
-    lines = code.splitlines()
+    match = re.search(pattern, code, re.DOTALL | re.IGNORECASE)
 
-    PYTHON_STARTERS = ("def ", "class ", "import ", "from ", "async def ")
-    start_idx = 0
-    for i, line in enumerate(lines):
-        if line.strip().startswith(PYTHON_STARTERS):
-            start_idx = i
+    if match:
+        clean_code = match.group(1).strip()
+    else:
+        # Fallback: No markdown used. Isolate code using Python starters.
+        lines = code.splitlines()
+        PYTHON_STARTERS = ("def ", "class ", "import ", "from ", "async def ")
+
+        start_idx = 0
+        for i, line in enumerate(lines):
+            if line.strip().startswith(PYTHON_STARTERS):
+                start_idx = i
+                break
+
+        clean_code = "\n".join(lines[start_idx:]).strip()
+
+    # Strategy 2: Early stopping
+    stop_markers = [
+        "--- END",
+        "# END OF",
+        "# DO NOT TOUCH",
+        "--- SOLUTION"
+    ]
+
+    final_lines = []
+    for line in clean_code.splitlines():
+        if line.strip().startswith("```"):
             break
 
-    lines = lines[start_idx:]
-
-    if lines and lines[0].strip().startswith("```"):
-        lines = lines[1:]
-
-    end_idx = len(lines)
-    for i in range(len(lines) - 1, -1, -1):
-        if lines[i].strip() == "```":
-            end_idx = i
+        upper_line = line.upper()
+        if any(marker in upper_line for marker in stop_markers):
             break
 
-    lines = lines[:end_idx]
+        final_lines.append(line)
 
-    return "\n".join(lines).strip()
+    return "\n".join(final_lines).strip()
