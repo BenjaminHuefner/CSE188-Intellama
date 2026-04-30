@@ -1,4 +1,4 @@
-from build_prompt import build_draft_prompt, build_code_review_prompt, build_code_repair_prompt
+from src.build_prompt import build_draft_prompt, build_code_review_prompt, build_code_repair_prompt
 from typing import Dict
 from src.llm import generate
 
