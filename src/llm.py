@@ -30,7 +30,7 @@ def generate(
 ) -> str:
     import torch
 
-    inputs = tokenizer(prompt, return_tensors="pt").to(model.device)
+    inputs = tokenizer(prompt,truncation=True,max_length=7680, return_tensors="pt").to(model.device)
     with torch.no_grad():
         outputs = model.generate(
             **inputs,
