@@ -192,7 +192,7 @@ def sanitize_code(code: str) -> str:
     code = code.strip()
     lines = code.splitlines()
 
-    PYTHON_STARTERS = ("def ", "class ", "import ", "from ", "#", "async def ")
+    PYTHON_STARTERS = ("def ", "class ", "import ", "from ", "async def ")
     start_idx = 0
     for i, line in enumerate(lines):
         if line.strip().startswith(PYTHON_STARTERS):
