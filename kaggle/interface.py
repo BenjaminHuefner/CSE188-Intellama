@@ -1,5 +1,6 @@
 import os
 import json
+import time
 import torch
 import torch.multiprocessing as mp
 from pathlib import Path
@@ -30,7 +31,7 @@ def worker_process(gpu_id: int, problems: List[Dict], results_dict: Dict):
             
             try:
                 # --- ACTUAL EXPERIMENT LOGIC ---
-                
+                time.sleep(1)  # Simulate time-consuming processing
                 # Placeholder result
                 results = {
                     "task_id": task_id,
