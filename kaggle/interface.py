@@ -1,28 +1,22 @@
 import os
 import json
-import time
 import torch
 import torch.multiprocessing as mp
 from pathlib import Path
 from typing import List, Dict
 
-def worker_process(gpu_id: int, problems: List[Dict], results_dict: Dict):
+def worker_process(gpu_id: int, problems: List[Dict], experiment_name: str, results_dict: Dict):
     """
     Logic for a single GPU worker.
     """
     # 1. Hardware Isolation: Must happen before any torch.cuda calls
     os.environ["CUDA_VISIBLE_DEVICES"] = str(gpu_id)
     
-    # 2. Imports inside the worker to ensure clean process state
-    import torch
-    from src.llm import load_model#, generate
+    from src.orchestrator import run_experiment_problem
 
     print(f"Worker {gpu_id}: Initializing GPU {gpu_id} with {len(problems)} problems.")
     
     try:
-        # 3. Load model ONCE per worker
-        model_id = "meta-llama/Meta-Llama-3-8B-Instruct"
-        model, tokenizer = load_model(model_id)
         
         worker_results = []
         for problem in problems:
@@ -30,21 +24,15 @@ def worker_process(gpu_id: int, problems: List[Dict], results_dict: Dict):
             print(f"Worker {gpu_id}: Processing {task_id}",flush=True)
             
             try:
-                # --- ACTUAL EXPERIMENT LOGIC ---
-                time.sleep(1)  # Simulate time-consuming processing
-                # Placeholder result
-                results = {
-                    "task_id": task_id,
-                    "status": "completed",
-                    "code": "print('Hello World')" 
-                }
+                results = run_experiment_problem(problem, experiment_name)
+
                 worker_results.append(results)
+                print(f"Worker {gpu_id}: {task_id} = {results['status']}",flush=True)
                 
             except Exception as e:
                 print(f"Worker {gpu_id} failed on {task_id}: {str(e)}")
-                worker_results.append({"task_id": task_id, "status": "failed", "error": str(e)})
+                worker_results.append({"task_id": task_id, "status": "failed"})
         
-        # 4. Push results back to the manager
         results_dict[gpu_id] = worker_results
         
     except Exception as e:
@@ -85,7 +73,7 @@ def run_experiment(experiment_name: str):
     processes = []
 
     for i in range(num_workers):
-        p = mp.Process(target=worker_process, args=(i, chunks[i], results_dict))
+        p = mp.Process(target=worker_process, args=(i, chunks[i], experiment_name, results_dict))
         p.start()
         processes.append(p)
 
